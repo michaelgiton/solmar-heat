@@ -51,8 +51,12 @@ const combat = createCombat(scene, city, random);
 // The player.
 const playerModel = createPersonModel(0xe8a83a, 0x2a3a5a, 0xc89a6a);
 const garage = city.locations.garage;
+// Spawn a step south of the garage approach, facing the garage and its
+// mission marker, with the building, its sign and the street all in view —
+// never nose-to-a-wall inside the building's edge.
+const spawnPoint = { x: garage.approach.x, z: garage.approach.z + 7 };
 const player = {
-  walker: createWalker(scene, playerModel, garage.x + 8, garage.z + 14, Math.PI),
+  walker: createWalker(scene, playerModel, spawnPoint.x, spawnPoint.z, Math.PI),
   health: PLAYER.maxHealth,
   cash: ECONOMY.startCash,
   onFoot: true,
@@ -62,8 +66,8 @@ const player = {
   lastDamage: -99,
   shotFired: false,
 };
-player.walker.x = garage.x + 8;
-player.walker.z = garage.z + 14;
+player.walker.x = spawnPoint.x;
+player.walker.z = spawnPoint.z;
 
 // Vehicles: traffic, parked cars, and mission cars as they spawn.
 const cars = [];
@@ -208,7 +212,7 @@ function applySave(data) {
       coin.mesh.visible = false;
     }
   }
-  teleportPlayer(data.x ?? garage.x + 8, data.z ?? garage.z + 14, data.heading ?? Math.PI);
+  teleportPlayer(data.x ?? spawnPoint.x, data.z ?? spawnPoint.z, data.heading ?? Math.PI);
   hud.setCash(player.cash);
   hud.setHealth(player.health, PLAYER.maxHealth);
 }
@@ -304,7 +308,7 @@ function respawn() {
   player.onFoot = true;
   player.health = PLAYER.maxHealth;
   player.walker.model.group.visible = true;
-  teleportPlayer(spot.x + 10, spot.z + 12, Math.PI);
+  teleportPlayer(spot.approach.x, spot.approach.z, Math.PI);
   hud.setHealth(player.health, PLAYER.maxHealth);
   hud.hideEnd();
   screen = 'play';
@@ -716,7 +720,7 @@ document.addEventListener('visibilitychange', () => {
 hud.setCash(player.cash);
 hud.setHealth(player.health, PLAYER.maxHealth);
 hud.setStars(0, false);
-cameraController.snapTo(garage.x + 8, 0, garage.z + 14, Math.PI);
+cameraController.snapTo(spawnPoint.x, 0, spawnPoint.z, Math.PI);
 if (shot) {
   vistaMode = stageShot(shot, game) === 'vista';
   if (vistaMode) {

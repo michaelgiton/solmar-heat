@@ -264,7 +264,16 @@ export function buildCity(scene, random) {
 
   place('garage', 1, 6, (g) => {
     slab(g, inner * 0.8, 7, inner * 0.6, 0, 0, mat(0x8a7a66));
-    slab(g, inner * 0.5, 4.5, 1, 0, inner * 0.3 + 0.5, mat(0x222222));
+    // Roller-door texture: steel slats instead of a flat black void.
+    const dc = document.createElement('canvas');
+    dc.width = 128; dc.height = 64;
+    const dctx = dc.getContext('2d');
+    dctx.fillStyle = '#6a7a8a'; dctx.fillRect(0, 0, 128, 64);
+    dctx.fillStyle = '#46566a';
+    for (let y = 6; y < 64; y += 8) dctx.fillRect(0, y, 128, 2);
+    dctx.fillStyle = '#93a3b5'; dctx.fillRect(0, 0, 128, 3);
+    const doorTex = new THREE.CanvasTexture(dc);
+    slab(g, inner * 0.5, 4.5, 1, 0, inner * 0.3 + 0.5, new THREE.MeshLambertMaterial({ map: doorTex }));
     sign(g, signTexture("THEO'S GARAGE", 'REPAIRS • TOWING', '#24344d', '#ffd98a'), 20, 8.5, inner * 0.3 + 0.6);
     colliders.push(boxCollider(1, 6, inner * 0.8, inner * 0.6));
   });
